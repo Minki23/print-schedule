@@ -25,7 +25,7 @@ declare module 'next-auth/jwt' {
   interface JWT extends MyAppUser {}
 }
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
