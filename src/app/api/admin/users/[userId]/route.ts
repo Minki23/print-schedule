@@ -15,7 +15,7 @@ export async function PUT(request: Request, context: { params: { userId: string 
     const { userId } = context.params;
     const { action } = await request.json();
 
-    let update: Partial<{ rank: string; status: string }> = {};
+    const update: Partial<{ rank: string; status: string }> = {};
     switch (action) {
       case 'approve':
         update.status = 'approved';
