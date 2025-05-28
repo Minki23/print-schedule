@@ -12,11 +12,12 @@ interface MyAppUser {
   rank: 'user' | 'admin';
   status: 'pending' | 'approved' | 'rejected';
 }
-
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 declare module 'next-auth' {
   interface Session {
     user: MyAppUser;
   }
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface User extends MyAppUser {}
 }
 
