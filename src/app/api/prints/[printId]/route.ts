@@ -72,7 +72,7 @@ export async function DELETE(request: Request, context: any) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await context.printId;
+    const { printId } = await context.params;
     const print = await PrintModel.findById(printId).populate('printer');
     if (!print) {
       return NextResponse.json({ error: 'Print not found' }, { status: 404 });
