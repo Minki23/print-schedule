@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/User';
 
-export async function PUT(request: Request, { params }: { params: { userId: string } }) {
+export async function PUT(request: Request, context: { params: { userId: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.rank !== 'admin') {
@@ -12,7 +12,7 @@ export async function PUT(request: Request, { params }: { params: { userId: stri
     }
 
     await dbConnect();
-    const { userId } = await params;
+    const { userId } = context.params;
     const { action } = await request.json();
 
     let update: Partial<{ rank: string; status: string }> = {};

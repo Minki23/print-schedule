@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbConnect';
 import PrintModel from '@/models/Print';
+import '@/models/Printer';
+import '@/models/User';
 
 export async function GET(request: Request) {
   try {
@@ -16,7 +18,7 @@ export async function GET(request: Request) {
         const elapsedMilliseconds = Date.now() - new Date(p.startedAt).getTime();
         const elapsedMinutes = Math.floor(elapsedMilliseconds / 60000);
         timeRemaining = Math.max(p.duration - elapsedMinutes, 0);
-      }
+      } 
       const scheduledByName = p.scheduledBy ? (p.scheduledBy as any).name : 'Unknown User';
       return {
         ...p.toObject(),

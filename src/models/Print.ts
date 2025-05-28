@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const PrintSchema = new Schema({
   name: {
@@ -31,8 +31,8 @@ const PrintSchema = new Schema({
     ref: 'Printer',
     required: [true, 'Printer is required']
   }
-});
+}); 
 
-const Print = models.Print || model('Print', PrintSchema);
+const Print = model('Print', PrintSchema);
 
 export default Print;
