@@ -44,6 +44,18 @@ export async function PATCH(request: Request, context: any) {
         await printer.save();
       }
       return NextResponse.json({ print });
+    } else if (action === 'complete') {
+      if (print.status !== 'printing') {
+        return NextResponse.json({ error: 'Print is not currently printing' }, { status: 400 });
+      }
+      // Mark as completed and free up printer
+      print.status = 'completed';
+      await print.save();
+      if (printer) {
+        printer.occupied = false;
+        await printer.save();
+      }
+      return NextResponse.json({ print });
     }
 
     // Default action: start

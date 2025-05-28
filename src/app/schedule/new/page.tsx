@@ -74,7 +74,7 @@ export default function NewPrintPage() {
 
   return (
     <div className="container mx-auto p-4 max-w-lg font-[family-name:var(--font-geist-sans)]">
-      <h1 className="text-3xl font-bold mb-8 text-center text-black">Dodaj nowe zadanie druku</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center text-white">Dodaj nowe zadanie druku</h1>
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md">
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <div className="mb-4">
@@ -129,7 +129,7 @@ export default function NewPrintPage() {
             id="duration"
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 text-gray-700 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             required
             min="1"
           />

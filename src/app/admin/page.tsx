@@ -152,9 +152,9 @@ export default function AdminPage() {
         ) : (
           <ul className="space-y-3">
             {pendingUsers.map((user) => (
-              <li key={user._id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+              <li key={user._id} className="bg-white text-gray-700 p-4 rounded-lg shadow flex justify-between items-center">
                 <div>
-                  <p className="font-medium">{user.name} ({user.email})</p>
+                  <p className="font-medium text-gray-700">{user.name} ({user.email})</p>
                 </div>
                 <div className="space-x-2">
                   <button onClick={() => handleUserUpdate(user._id, 'approve')} className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded text-sm">Approve</button>
