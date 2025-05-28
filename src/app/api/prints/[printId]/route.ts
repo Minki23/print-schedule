@@ -6,14 +6,14 @@ import PrintModel from '@/models/Print';
 import PrinterModel from '@/models/Printer';
 
 // Stop or start a print job
-export async function PATCH(request: Request, { params }: { params: { printId: string } }) {
+export async function PATCH(request: Request, context: any) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await params;
+    const { printId } = await context.printId;
 
     // Determine action from request body; if no JSON body, default to 'start'
     let action: string | undefined;
