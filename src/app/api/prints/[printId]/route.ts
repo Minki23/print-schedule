@@ -65,14 +65,14 @@ export async function PATCH(request: Request, context: any) {
 }
 
 // Delete a print job
-export async function DELETE(request: Request, { params }: { params: { printId: string } }) {
+export async function DELETE(request: Request, context: any) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.rank !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await params;
+    const printId = await context.printId;
     const print = await PrintModel.findById(printId).populate('printer');
     if (!print) {
       return NextResponse.json({ error: 'Print not found' }, { status: 404 });
