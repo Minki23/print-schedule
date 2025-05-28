@@ -13,7 +13,7 @@ export async function PATCH(request: Request, context: any) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await context.printId;
+    const { printId } = await context.params;
 
     // Determine action from request body; if no JSON body, default to 'start'
     let action: string | undefined;

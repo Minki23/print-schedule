@@ -127,11 +127,11 @@ export default function AdminPage() {
   };
 
   if (session?.user.rank !== 'admin') {
-    return <div className="flex justify-center items-center min-h-screen">Access Denied. Admins only.</div>;
+    return <div className="flex justify-center items-center min-h-screen">Brak dostępu.</div>;
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading users...</div>;
+    return <div className="flex justify-center items-center min-h-screen">Ładowanie użytkowników i drukarek...</div>;
   }
 
   if (error) {
@@ -143,12 +143,12 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto p-4 font-[family-name:var(--font-geist-sans)]">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-8">Panel administratora</h1>
 
       <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Pending Registrations</h2>
+        <h2 className="text-2xl font-semibold mb-4">Wnioski o rejestracje</h2>
         {pendingUsers.length === 0 ? (
-          <p>No pending registration requests.</p>
+          <p>Brak wniosków.</p>
         ) : (
           <ul className="space-y-3">
             {pendingUsers.map((user) => (
@@ -167,15 +167,15 @@ export default function AdminPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-4">Manage Users</h2>
+        <h2 className="text-2xl font-semibold mb-4">Zarządzaj użytkownikami</h2>
         {approvedUsers.length === 0 ? (
-          <p>No approved users yet.</p>
+          <p>Brak użytkwoników</p>
         ) : (
           <ul className="space-y-3">
             {approvedUsers.map((user) => (
               <li key={user._id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
                 <div>
-                  <p className=" text-gray-700 font-medium">{user.name} ({user.email}) - Rank: {user.rank}</p>
+                  <p className=" text-gray-700 font-medium">{user.name} ({user.email}) - Ranga: {user.rank}</p>
                 </div>
                 <div className="space-x-2">
                   {user.rank === 'user' ? (
@@ -184,7 +184,7 @@ export default function AdminPage() {
                     session?.user.id !== user._id ? (
                       <button onClick={() => handleUserUpdate(user._id, 'revokeAdmin')} className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded text-sm">Revoke Admin</button>
                     ) : (
-                      <span className=" text-gray-700 text-sm">Current Admin</span>
+                      <span className=" text-gray-700 text-sm">Admin</span>
                     )
                   )}
                 </div>
@@ -195,7 +195,7 @@ export default function AdminPage() {
       </section>
 
       <section className="mt-10 mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Manage Printers</h2>
+        <h2 className="text-2xl font-semibold mb-4">Zarządzaj drukarkami</h2>
         <form onSubmit={handleAddPrinter} className="mb-6 flex space-x-2">
           <input
             type="text"
@@ -210,7 +210,7 @@ export default function AdminPage() {
             disabled={isPrinterLoading}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
           >
-            {isPrinterLoading ? 'Adding...' : 'Add Printer'}
+            {isPrinterLoading ? 'Dodawanie...' : 'Dodaj drukarkę'}
           </button>
         </form>
         {printerError && <p className="text-red-500 mb-4">{printerError}</p>}
@@ -220,7 +220,7 @@ export default function AdminPage() {
               {p.name}
             </li>
           ))}
-          {printers.length === 0 && <p>No printers added yet.</p>}
+          {printers.length === 0 && <p>Brak dodanych drukarek.</p>}
         </ul>
       </section>
 
