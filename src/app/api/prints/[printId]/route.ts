@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/authOptions';
 import dbConnect from '@/lib/dbConnect';
 import PrintModel from '@/models/Print';
 import PrinterModel from '@/models/Printer';
 
 // Stop or start a print job
-export async function PATCH(request: Request, { params }: { params: { printId: string } }) {
+export async function PATCH(request: Request, context: any) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await params;
+    const { printId } = await context.params;
 
     // Determine action from request body; if no JSON body, default to 'start'
     let action: string | undefined;
@@ -44,6 +44,18 @@ export async function PATCH(request: Request, { params }: { params: { printId: s
         await printer.save();
       }
       return NextResponse.json({ print });
+    } else if (action === 'complete') {
+      if (print.status !== 'printing') {
+        return NextResponse.json({ error: 'Print is not currently printing' }, { status: 400 });
+      }
+      // Mark as completed and free up printer
+      print.status = 'completed';
+      await print.save();
+      if (printer) {
+        printer.occupied = false;
+        await printer.save();
+      }
+      return NextResponse.json({ print });
     }
 
     // Default action: start
@@ -65,14 +77,14 @@ export async function PATCH(request: Request, { params }: { params: { printId: s
 }
 
 // Delete a print job
-export async function DELETE(request: Request, { params }: { params: { printId: string } }) {
+export async function DELETE(request: Request, context: any) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.rank !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await params;
+    const { printId } = await context.params;
     const print = await PrintModel.findById(printId).populate('printer');
     if (!print) {
       return NextResponse.json({ error: 'Print not found' }, { status: 404 });

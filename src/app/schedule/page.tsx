@@ -33,13 +33,40 @@ export default function SchedulePage() {
           throw new Error('Failed to fetch prints');
         }
         const data = await res.json();
-        setPrints(data.prints || []);
+        const fetchedPrints = data.prints || [];
+        
+        // Check for prints that should be completed
+        const now = new Date();
+        for (const print of fetchedPrints) {
+          if (print.status === 'printing' && print.startedAt) {
+            const completionTime = new Date(new Date(print.startedAt).getTime() + print.duration * 60000);
+            if (now >= completionTime) {
+              // Mark print as completed
+              await fetch(`/api/prints/${print._id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'complete' }),
+              });
+            }
+          }
+        }
+        
+        // Fetch prints again to get updated statuses
+        const updatedRes = await fetch('/api/prints');
+        const updatedData = await updatedRes.json();
+        setPrints(updatedData.prints || []);
       } catch (err: any) {
         setError(err.message || 'An error occurred while fetching prints.');
       }
       setIsLoading(false);
     };
+    
     fetchPrints();
+    
+    // Set up interval to check periodically
+    const interval = setInterval(fetchPrints, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
   }, []);
 
   const printingPrints = prints.filter(p => p.status === 'printing');

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/authOptions';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/User';
 
-export async function PUT(request: Request, context: { params: { userId: string } }) {
+export async function PUT(request: Request, context: any) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.rank !== 'admin') {
