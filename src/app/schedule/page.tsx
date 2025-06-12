@@ -81,6 +81,7 @@ export default function SchedulePage() {
             {printingPrints.map(print => (
               <div key={print._id} className="bg-blue-100 p-6 rounded-lg shadow-inner">
                 <h3 className="text-xl font-semibold mb-2 truncate text-black">{print.name}</h3>
+                <a href={print.googleDriveLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mb-2 block">{print.googleDriveLink}</a>
                 <p className="text-sm mb-1 text-black">Drukarka: <span className="font-medium">{print.printer.name}</span></p>
                 <p className="text-sm mb-1 text-black">Pozostały czas: <span className="font-medium">{typeof print.timeRemaining === 'number' ? print.timeRemaining : 'N/A'}</span></p>
                 <p className="text-sm mb-1 text-black">Przewidywany czas zakończenia: <span className="font-medium">{print.startedAt ? new Date(new Date(print.startedAt).getTime() + print.duration * 60000).toLocaleTimeString() : 'N/A'}</span></p>
@@ -135,6 +136,7 @@ export default function SchedulePage() {
               return (
                 <div key={print._id} className="bg-white p-6 rounded-lg shadow-md">
                   <h3 className="text-lg font-semibold mb-2 truncate text-black">{print.name}</h3>
+                  <a href={print.googleDriveLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mb-2 block">{print.googleDriveLink}</a>
                   <p className="text-sm mb-1 text-black">Drukarka: {print.printer.name}</p>
                   <p className="text-sm mb-1 text-black">Czas trwania: {print.duration} min</p>
                   <p className="text-xs mt-1 text-black">Dodane przez: {print.scheduledBy?.name || 'Nieznany'}</p>
@@ -214,6 +216,7 @@ export default function SchedulePage() {
             {completedPrints.map(print => (
               <div key={print._id} className="bg-green-50 p-6 rounded-lg shadow-inner">
                 <h3 className="text-lg font-semibold mb-2 truncate text-black">{print.name}</h3>
+                <a href={print.googleDriveLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mb-2 block">{print.googleDriveLink}</a>
                 <p className="text-sm mb-1 text-black">Drukarka: {print.printer.name}</p>
                 <p className="text-sm mb-1 text-black">Czas trwania: {print.duration} min</p>
                 <p className="text-xs mt-1 text-black">Dodane przez: {print.scheduledBy?.name || 'Nieznany'}</p>
@@ -252,6 +255,7 @@ export default function SchedulePage() {
             {failedPrints.map(print => (
               <div key={print._id} className="bg-red-50 p-6 rounded-lg shadow-inner">
                 <h3 className="text-lg font-semibold mb-2 truncate text-black">{print.name}</h3>
+                <a href={print.googleDriveLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mb-2 block">{print.googleDriveLink}</a>
                 <p className="text-sm mb-1 text-black">Drukarka: {print.printer.name}</p>
                 <p className="text-sm mb-1 text-black">Czas trwania: {print.duration} min</p>
                 <p className="text-xs mt-1 text-black">Dodane przez: {print.scheduledBy?.name || 'Nieznany'}</p>
