@@ -56,6 +56,29 @@ export async function PATCH(request: Request, context: any) {
         await printer.save();
       }
       return NextResponse.json({ print });
+    } else if (action === 'markFailed') {
+      // Mark as failed
+      print.status = 'failed';
+      await print.save();
+      if (printer) {
+        printer.occupied = false;
+        await printer.save();
+      }
+      return NextResponse.json({ print });
+    }
+    else if (action === 'restart') {
+      // Restart print by marking it as pending and freeing the printer
+      if (print.status !== 'failed') {
+        return NextResponse.json({ error: 'Print can only be restarted if it has failed' }, { status: 400 });
+      }
+      print.status = 'pending';
+      console.log('Restarting print:', print.status);
+      await print.save();
+      if (printer) {
+        printer.occupied = false;
+        await printer.save();
+      }
+      return NextResponse.json({ print });
     }
 
     // Default action: start

@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
 const PrintSchema = new Schema({
   name: {
@@ -33,6 +33,6 @@ const PrintSchema = new Schema({
   }
 }); 
 
-const Print = model('Print', PrintSchema);
+const Print = models.Print || model('Print', PrintSchema);
 
 export default Print;

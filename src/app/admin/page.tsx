@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Navigation from '@/components/Navigation';
 
 interface User {
   _id: string;
@@ -127,103 +128,123 @@ export default function AdminPage() {
   };
 
   if (session?.user.rank !== 'admin') {
-    return <div className="flex justify-center items-center min-h-screen">Brak dostępu.</div>;
+    return (
+      <div className="schedule-background">
+        <Navigation />
+        <div className="loading">Brak dostępu.</div>
+      </div>
+    );
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Ładowanie użytkowników i drukarek...</div>;
+    return (
+      <div className="schedule-background">
+        <Navigation />
+        <div className="loading">Ładowanie użytkowników i drukarek...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="flex justify-center items-center min-h-screen text-red-500">Error: {error}</div>;
+    return (
+      <div className="schedule-background">
+        <Navigation />
+        <div className="error">Błąd: {error}</div>
+      </div>
+    );
   }
 
   const pendingUsers = users.filter(user => user.status === 'pending');
   const approvedUsers = users.filter(user => user.status === 'approved');
 
   return (
-    <div className="container mx-auto p-4 font-[family-name:var(--font-geist-sans)]">
-      <h1 className="text-3xl font-bold mb-8">Panel administratora</h1>
+    <div className="schedule-background">
+      <div className="schedule-content container">
+        <header className="page-header">
+          <h1 className="page-title">Panel administratora</h1>
+        </header>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Wnioski o rejestracje</h2>
-        {pendingUsers.length === 0 ? (
-          <p>Brak wniosków.</p>
-        ) : (
-          <ul className="space-y-3">
-            {pendingUsers.map((user) => (
-              <li key={user._id} className="bg-white text-gray-700 p-4 rounded-lg shadow flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-700">{user.name} ({user.email})</p>
-                </div>
-                <div className="space-x-2">
-                  <button onClick={() => handleUserUpdate(user._id, 'approve')} className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded text-sm">Approve</button>
-                  <button onClick={() => handleUserUpdate(user._id, 'reject')} className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm">Reject</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <div className="admin-sections">
+          <section className="admin-section">
+            <h2 className="section-title">Wnioski o rejestracje</h2>
+            {pendingUsers.length === 0 ? (
+              <p className="section-empty">Brak wniosków.</p>
+            ) : (
+              <ul className="admin-list">
+                {pendingUsers.map((user) => (
+                  <li key={user._id} className="admin-card">
+                    <div>
+                      <p className="admin-card-text">{user.name} ({user.email})</p>
+                    </div>
+                    <div className="admin-actions">
+                      <button onClick={() => handleUserUpdate(user._id, 'approve')} className="btn btn-success btn-sm">Zatwierdź</button>
+                      <button onClick={() => handleUserUpdate(user._id, 'reject')} className="btn btn-danger btn-sm">Odrzuć</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Zarządzaj użytkownikami</h2>
-        {approvedUsers.length === 0 ? (
-          <p>Brak użytkwoników</p>
-        ) : (
-          <ul className="space-y-3">
-            {approvedUsers.map((user) => (
-              <li key={user._id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-                <div>
-                  <p className=" text-gray-700 font-medium">{user.name} ({user.email}) - Ranga: {user.rank}</p>
-                </div>
-                <div className="space-x-2">
-                  {user.rank === 'user' ? (
-                    <button onClick={() => handleUserUpdate(user._id, 'makeAdmin')} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm">Make Admin</button>
-                  ) : (
-                    session?.user.id !== user._id ? (
-                      <button onClick={() => handleUserUpdate(user._id, 'revokeAdmin')} className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded text-sm">Revoke Admin</button>
-                    ) : (
-                      <span className=" text-gray-700 text-sm">Admin</span>
-                    )
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          <section className="admin-section">
+            <h2 className="section-title">Zarządzaj użytkownikami</h2>
+            {approvedUsers.length === 0 ? (
+              <p className="section-empty">Brak użytkowników</p>
+            ) : (
+              <ul className="admin-list">
+                {approvedUsers.map((user) => (
+                  <li key={user._id} className="admin-card">
+                    <div>
+                      <p className="admin-card-text">{user.name} ({user.email}) - Ranga: {user.rank}</p>
+                    </div>
+                    <div className="admin-actions">
+                      {user.rank === 'user' ? (
+                        <button onClick={() => handleUserUpdate(user._id, 'makeAdmin')} className="btn btn-primary btn-sm">Nadaj uprawnienia admin</button>
+                      ) : (
+                        session?.user.id !== user._id ? (
+                          <button onClick={() => handleUserUpdate(user._id, 'revokeAdmin')} className="btn btn-warning btn-sm">Odbierz uprawnienia admin</button>
+                        ) : (
+                          <span className="admin-badge">Administrator</span>
+                        )
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-      <section className="mt-10 mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Zarządzaj drukarkami</h2>
-        <form onSubmit={handleAddPrinter} className="mb-6 flex space-x-2">
-          <input
-            type="text"
-            placeholder="Printer Name"
-            value={printerName}
-            onChange={e => setPrinterName(e.target.value)}
-            className="px-3 py-2 border rounded"
-            required
-          />
-          <button
-            type="submit"
-            disabled={isPrinterLoading}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
-          >
-            {isPrinterLoading ? 'Dodawanie...' : 'Dodaj drukarkę'}
-          </button>
-        </form>
-        {printerError && <p className="text-red-500 mb-4">{printerError}</p>}
-        <ul className="space-y-2">
-          {printers.map(p => (
-            <li key={p._id} className="bg-white text-gray-700 p-3 rounded shadow">
-              {p.name}
-            </li>
-          ))}
-          {printers.length === 0 && <p>Brak dodanych drukarek.</p>}
-        </ul>
-      </section>
-
+          <section className="admin-section">
+            <h2 className="section-title">Zarządzaj drukarkami</h2>
+            <form onSubmit={handleAddPrinter} className="admin-form">
+              <input
+                type="text"
+                placeholder="Nazwa drukarki"
+                value={printerName}
+                onChange={e => setPrinterName(e.target.value)}
+                className="search-bar"
+                required
+              />
+              <button
+                type="submit"
+                disabled={isPrinterLoading}
+                className="btn btn-success"
+              >
+                {isPrinterLoading ? 'Dodawanie...' : 'Dodaj drukarkę'}
+              </button>
+            </form>
+            {printerError && <p className="error-message">{printerError}</p>}
+            <ul className="admin-list">
+              {printers.map(p => (
+                <li key={p._id} className="admin-card">
+                  <p className="admin-card-text">{p.name}</p>
+                </li>
+              ))}
+              {printers.length === 0 && <p className="section-empty">Brak dodanych drukarek.</p>}
+            </ul>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

@@ -42,11 +42,11 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-      <h2 className="text-2xl text-black font-bold mb-6 text-center">Logowanie</h2>
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      <div className="mb-4">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+    <form onSubmit={handleSubmit} className="form-container">
+      <h2 className="form-title">Logowanie</h2>
+      {error && <p className="form-error">{error}</p>}
+      <div className="form-group">
+        <label htmlFor="email" className="form-label">
           Email
         </label>
         <input
@@ -54,12 +54,12 @@ export default function LoginForm() {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border text-gray-700 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="form-input"
           required
         />
       </div>
-      <div className="mb-6">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="form-group">
+        <label htmlFor="password" className="form-label">
           Hasło
         </label>
         <input
@@ -67,20 +67,20 @@ export default function LoginForm() {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 text-gray-700 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="form-input"
           required
         />
       </div>
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="btn btn-primary w-full"
       >
-        Login
+        Zaloguj się
       </button>
       <div className="mt-4 text-center">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
           Nie masz konta?{' '}
-          <Link className="text-indigo-600 hover:text-indigo-800 font-medium" href="/register">
+          <Link className="form-link" href="/register">
             Zarejestruj się
           </Link>
         </p>

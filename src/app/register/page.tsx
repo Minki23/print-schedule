@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -50,62 +51,70 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-gray-700 text-center">Rejestracja</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-green-500 mb-4">{success}</p>}
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Imię</label>
+    <div className="auth-background">
+      <form onSubmit={handleSubmit} className="form-container">
+        <h2 className="form-title">Rejestracja</h2>
+        {error && <p className="form-error">{error}</p>}
+        {success && <p className="form-success">{success}</p>}
+        <div className="form-group">
+          <label htmlFor="name" className="form-label">Imię</label>
           <input
             type="text"
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 text-gray-700 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="form-input"
             required
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+        <div className="form-group">
+          <label htmlFor="email" className="form-label">Email</label>
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 text-gray-700 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="form-input"
             required
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Hasło</label>
+        <div className="form-group">
+          <label htmlFor="password" className="form-label">Hasło</label>
           <input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="form-input"
             required
           />
         </div>
-        <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Potwierdź hasło</label>
+        <div className="form-group">
+          <label htmlFor="confirmPassword" className="form-label">Potwierdź hasło</label>
           <input
             type="password"
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="mt-1 text-gray-700 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="form-input"
             required
           />
         </div>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="btn btn-primary w-full"
         >
           {isSubmitting ? 'Registering...' : 'Register'}
         </button>
+        <div className="mt-4 text-center">
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            Masz już konto?{' '}
+            <Link className="form-link" href="/">
+              Zaloguj się
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );
