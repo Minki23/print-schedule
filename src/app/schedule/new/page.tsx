@@ -76,7 +76,6 @@ export default function NewPrintPage() {
 
   return (
     <div className="new-print-background">
-      <Navigation />
       <div className="new-print-content">
         <div className="header-actions" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
           <Link href="/schedule" className="btn btn-secondary">
