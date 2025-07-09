@@ -301,7 +301,8 @@ body {
 
 .card-menu {
   position: relative;
-  display: inline-block;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .menu-button {
@@ -999,10 +1000,206 @@ body {
 }
 
 .add-menu {
-  position: absolute;
-  margin: auto;
-  margin-block: 10%;
-  width: 80%;
-  height: 80%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.add-menu-content {
   background-color: var(--card-background);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Filament Display Styles */
+.filament-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.filament-info {
+  flex: 1;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.info-value {
+  font-weight: 500;
+  color: var(--card-foreground);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .filament-details {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+/* Notification Component Styles */
+.notification {
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  z-index: 1000;
+  min-width: 320px;
+  max-width: 600px;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.notification.hide {
+  transform: translateX(-50%) translateY(-100px);
+  opacity: 0;
+}
+
+.notification-content {
+  background: var(--card-background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  backdrop-filter: blur(10px);
+}
+
+.notification.success .notification-content {
+  border-left: 4px solid var(--success);
+  background: color-mix(in srgb, var(--success) 5%, var(--card-background));
+}
+
+.notification.error .notification-content {
+  border-left: 4px solid var(--destructive);
+  background: color-mix(in srgb, var(--destructive) 5%, var(--card-background));
+}
+
+.notification-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.notification.success .notification-icon {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+}
+
+.notification.error .notification-icon {
+  color: var(--destructive);
+  background: color-mix(in srgb, var(--destructive) 15%, transparent);
+}
+
+.notification-message {
+  flex: 1;
+  color: var(--card-foreground);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: var(--muted-foreground);
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  background: var(--muted);
+  color: var(--card-foreground);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .notification {
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    min-width: unset;
+    max-width: unset;
+  }
+
+  .notification.show {
+    transform: translateY(0);
+  }
+
+  .notification.hide {
+    transform: translateY(-100px);
+  }
+
+  .notification-content {
+    padding: 0.875rem 1rem;
+  }
+
+  .notification-message {
+    font-size: 0.8rem;
+  }
 }

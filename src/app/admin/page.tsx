@@ -159,6 +159,7 @@ export default function AdminPage() {
 
   return (
     <div className="schedule-background">
+      <Navigation/>
       <div className="schedule-content container">
         <header className="page-header">
           <h1 className="page-title">Panel administratora</h1>

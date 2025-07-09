@@ -125,11 +125,6 @@ export default function SchedulePage() {
             <Link href="/schedule/new" className="btn btn-primary">
               Dodaj nowe zadanie druku
             </Link>
-            {session?.user.rank === 'admin' && (
-              <Link href="/admin" className="btn btn-primary">
-                Panel administratora
-              </Link>)
-            }
           </div>
         </header>
 
