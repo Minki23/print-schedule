@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/authOptions';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/User';
 
-export async function PUT(request: Request, context: any) {
+export async function PUT(request: Request, { params }: { params: Promise<{ userId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.rank !== 'admin') {
@@ -12,7 +12,7 @@ export async function PUT(request: Request, context: any) {
     }
 
     await dbConnect();
-    const { userId } = context.params;
+    const { userId } = await params;
     const { action } = await request.json();
 
     const update: Partial<{ rank: string; status: string }> = {};

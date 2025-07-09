@@ -30,6 +30,21 @@ const PrintSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Printer',
     required: [true, 'Printer is required']
+  },
+  filament: {
+    type: Schema.Types.ObjectId,
+    ref: 'Filament',
+    required: false
+  },
+  estimatedFilamentUsage: {
+    type: Number,
+    required: false,
+    default: 0
+  },
+  actualFilamentUsage: {
+    type: Number,
+    default: 0,
+    required: false
   }
 }); 
 

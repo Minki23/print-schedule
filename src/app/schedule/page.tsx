@@ -12,10 +12,13 @@ interface Print {
   duration: number;
   status: string;
   googleDriveLink: string;
-  printer: { _id: string; name: string; location: string; occupied: boolean };
+  printer: { _id: string; name: string; location?: string; occupied: boolean };
   timeRemaining?: number;
   startedAt?: string;
   scheduledBy: { name: string };
+  filament?: { _id: string; brand: string; color: string; material: string };
+  estimatedFilamentUsage?: number;
+  actualFilamentUsage?: number;
 }
 
 export default function SchedulePage() {

@@ -4,38 +4,50 @@ import { authOptions } from '@/lib/authOptions';
 import dbConnect from '@/lib/dbConnect';
 import PrintModel from '@/models/Print';
 import PrinterModel from '@/models/Printer';
+import FilamentModel from '@/models/Filament';
 
 // Stop or start a print job
-export async function PATCH(request: Request, context: any) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ printId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await context.params;
+    const { printId } = await params;
 
     // Determine action from request body; if no JSON body, default to 'start'
     let action: string | undefined;
+    let actualFilamentUsage: number | undefined;
     try {
       const parsed = await request.json();
       action = parsed.action;
+      actualFilamentUsage = parsed.actualFilamentUsage;
     } catch {
       action = undefined;
     }
 
-    const print = await PrintModel.findById(printId).populate('printer');
+    const print = await PrintModel.findById(printId).populate('printer').populate('filament');
     if (!print) {
       return NextResponse.json({ error: 'Print not found' }, { status: 404 });
     }
 
     const printerId = (print.printer as any)?._id;
     const printer = printerId ? await PrinterModel.findById(printerId) : null;
+    const filament = print.filament ? await FilamentModel.findById((print.filament as any)._id) : null;
 
     if (action === 'stop') {
       if (print.status !== 'printing') {
         return NextResponse.json({ error: 'Print is not currently printing' }, { status: 400 });
       }
+      
+      // If actualFilamentUsage is provided, update it and consume filament
+      if (actualFilamentUsage !== undefined && filament) {
+        print.actualFilamentUsage = actualFilamentUsage;
+        filament.weight = Math.max(0, filament.weight - actualFilamentUsage);
+        await filament.save();
+      }
+      
       // Mark as failed and free up printer
       print.status = 'failed';
       await print.save();
@@ -48,6 +60,15 @@ export async function PATCH(request: Request, context: any) {
       if (print.status !== 'printing') {
         return NextResponse.json({ error: 'Print is not currently printing' }, { status: 400 });
       }
+      
+      // Consume estimated filament usage if no actual usage provided
+      const filamentToConsume = actualFilamentUsage !== undefined ? actualFilamentUsage : print.estimatedFilamentUsage;
+      if (filament) {
+        print.actualFilamentUsage = filamentToConsume;
+        filament.weight = Math.max(0, filament.weight - filamentToConsume);
+        await filament.save();
+      }
+      
       // Mark as completed and free up printer
       print.status = 'completed';
       await print.save();
@@ -57,6 +78,13 @@ export async function PATCH(request: Request, context: any) {
       }
       return NextResponse.json({ print });
     } else if (action === 'markFailed') {
+      // If actualFilamentUsage is provided, update it and consume filament
+      if (actualFilamentUsage !== undefined && filament) {
+        print.actualFilamentUsage = actualFilamentUsage;
+        filament.weight = Math.max(0, filament.weight - actualFilamentUsage);
+        await filament.save();
+      }
+      
       // Mark as failed
       print.status = 'failed';
       await print.save();
@@ -72,6 +100,7 @@ export async function PATCH(request: Request, context: any) {
         return NextResponse.json({ error: 'Print can only be restarted if it has failed' }, { status: 400 });
       }
       print.status = 'pending';
+      print.actualFilamentUsage = 0; // Reset filament usage
       console.log('Restarting print:', print.status);
       await print.save();
       if (printer) {
@@ -100,14 +129,14 @@ export async function PATCH(request: Request, context: any) {
 }
 
 // Delete a print job
-export async function DELETE(request: Request, context: any) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ printId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.rank !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await dbConnect();
-    const { printId } = await context.params;
+    const { printId } = await params;
     const print = await PrintModel.findById(printId).populate('printer');
     if (!print) {
       return NextResponse.json({ error: 'Print not found' }, { status: 404 });

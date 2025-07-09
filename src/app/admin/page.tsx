@@ -13,6 +13,22 @@ interface User {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+interface Printer {
+  _id: string;
+  name: string;
+  location?: string;
+  occupied: boolean;
+  supportedFilamentDiameters?: number[];
+  nozzleSize?: number;
+  possibleFilaments?: Array<{
+    _id: string;
+    brand: string;
+    color: string;
+    material: string;
+    diameter: number;
+  }>;
+}
+
 export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const { data: session } = useSession();
@@ -20,10 +36,14 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const [printers, setPrinters] = useState<{ _id: string; name: string; location: string }[]>([]);
+  const [printers, setPrinters] = useState<Printer[]>([]);
   const [printerName, setPrinterName] = useState('');
+  const [printerDiameters, setPrinterDiameters] = useState<number[]>([1.75]);
+  const [printerNozzleSize, setPrinterNozzleSize] = useState(0.4);
   const [printerError, setPrinterError] = useState('');
   const [isPrinterLoading, setIsPrinterLoading] = useState(false);
+  const [editingPrinter, setEditingPrinter] = useState<Printer | null>(null);
+  const [showPrinterForm, setShowPrinterForm] = useState(false);
 
   useEffect(() => {
     if (session?.user.rank !== 'admin') {
@@ -107,23 +127,80 @@ export default function AdminPage() {
     }
     setIsPrinterLoading(true);
     try {
-      const res = await fetch('/api/printers', {
-        method: 'POST',
+      const url = editingPrinter ? `/api/printers/${editingPrinter._id}` : '/api/printers';
+      const method = editingPrinter ? 'PATCH' : 'POST';
+      
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: printerName }),
+        body: JSON.stringify({
+          name: printerName,
+          supportedFilamentDiameters: printerDiameters,
+          nozzleSize: printerNozzleSize
+        }),
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Failed to add printer');
+        throw new Error(err.error || 'Failed to save printer');
       }
 
       const { printers: updated } = await (await fetch('/api/printers')).json();
       setPrinters(updated || []);
-      setPrinterName('');
+      resetPrinterForm();
     } catch (err: any) {
       setPrinterError(err.message);
     } finally {
       setIsPrinterLoading(false);
+    }
+  };
+
+  const resetPrinterForm = () => {
+    setPrinterName('');
+    setPrinterDiameters([1.75]);
+    setPrinterNozzleSize(0.4);
+    setEditingPrinter(null);
+    setShowPrinterForm(false);
+  };
+
+  const handleEditPrinter = (printer: Printer) => {
+    setEditingPrinter(printer);
+    setPrinterName(printer.name);
+    setPrinterDiameters(printer.supportedFilamentDiameters || [1.75]);
+    setPrinterNozzleSize(printer.nozzleSize || 0.4);
+    setShowPrinterForm(true);
+  };
+
+  const handleDeletePrinter = async (printerId: string) => {
+    if (!confirm('Czy na pewno chcesz usunąć tę drukarkę?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/printers/${printerId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete printer');
+      }
+
+      const { printers: updated } = await (await fetch('/api/printers')).json();
+      setPrinters(updated || []);
+    } catch (err: any) {
+      setPrinterError(err.message);
+    }
+  };
+
+  const addDiameter = () => {
+    const newDiameter = parseFloat(prompt('Podaj średnicę filamentu (mm):') || '');
+    if (newDiameter && !printerDiameters.includes(newDiameter)) {
+      setPrinterDiameters(prev => [...prev, newDiameter]);
+    }
+  };
+
+  const removeDiameter = (diameter: number) => {
+    if (printerDiameters.length > 1) {
+      setPrinterDiameters(prev => prev.filter(d => d !== diameter));
     }
   };
 
@@ -217,32 +294,128 @@ export default function AdminPage() {
 
           <section className="admin-section">
             <h2 className="section-title">Zarządzaj drukarkami</h2>
-            <form onSubmit={handleAddPrinter} className="admin-form">
-              <input
-                type="text"
-                placeholder="Nazwa drukarki"
-                value={printerName}
-                onChange={e => setPrinterName(e.target.value)}
-                className="search-bar"
-                required
-              />
-              <button
-                type="submit"
-                disabled={isPrinterLoading}
-                className="btn btn-success"
-              >
-                {isPrinterLoading ? 'Dodawanie...' : 'Dodaj drukarkę'}
-              </button>
-            </form>
-            {printerError && <p className="error-message">{printerError}</p>}
-            <ul className="admin-list">
-              {printers.map(p => (
-                <li key={p._id} className="admin-card">
-                  <p className="admin-card-text">{p.name}</p>
-                </li>
+            <button
+              onClick={() => setShowPrinterForm(true)}
+              className="btn btn-primary"
+            >
+              Dodaj drukarkę
+            </button>
+            
+            {showPrinterForm && (
+              <div className="add-menu">
+                <div className="add-menu-content">
+                  <h3 className="form-title">
+                    {editingPrinter ? 'Edytuj drukarkę' : 'Dodaj nową drukarkę'}
+                  </h3>
+                  <form onSubmit={handleAddPrinter} className="add-form">
+                    <div className="form-group">
+                      <label className="form-label">Nazwa drukarki</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={printerName}
+                        onChange={(e) => setPrinterName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Rozmiar dyszy (mm)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="form-input"
+                        value={printerNozzleSize}
+                        onChange={(e) => setPrinterNozzleSize(parseFloat(e.target.value))}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Obsługiwane średnice filamentu</label>
+                      <div className="diameter-list">
+                        {printerDiameters.map((diameter, index) => (
+                          <div key={index} className="diameter-item">
+                            <span>{diameter} mm</span>
+                            {printerDiameters.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeDiameter(diameter)}
+                                className="btn-remove"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={addDiameter}
+                          className="btn btn-secondary"
+                        >
+                          Dodaj średnicę
+                        </button>
+                      </div>
+                    </div>
+
+                    {printerError && <p className="error-message">{printerError}</p>}
+
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={isPrinterLoading}
+                        className="btn btn-success"
+                      >
+                        {isPrinterLoading ? 'Zapisywanie...' : (editingPrinter ? 'Zapisz zmiany' : 'Dodaj drukarkę')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetPrinterForm}
+                        className="btn btn-secondary"
+                      >
+                        Anuluj
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            <div className="printers-grid">
+              {printers.map(printer => (
+                <div key={printer._id} className="printer-card">
+                  <div className="printer-header">
+                    <h3>{printer.name}</h3>
+                    <span className={`status ${printer.occupied ? 'occupied' : 'available'}`}>
+                      {printer.occupied ? 'Zajęta' : 'Dostępna'}
+                    </span>
+                  </div>
+                  
+                  <div className="printer-info">
+                    <p><strong>Rozmiar dyszy:</strong> {printer.nozzleSize || 0.4} mm</p>
+                    <p><strong>Obsługiwane średnice:</strong> {(printer.supportedFilamentDiameters || [1.75]).join(', ')} mm</p>
+                    <p><strong>Dostępne filamenty:</strong> {printer.possibleFilaments?.length || 0}</p>
+                  </div>
+
+                  <div className="printer-actions">
+                    <button
+                      onClick={() => handleEditPrinter(printer)}
+                      className="btn btn-secondary"
+                    >
+                      Edytuj
+                    </button>
+                    <button
+                      onClick={() => handleDeletePrinter(printer._id)}
+                      className="btn btn-danger"
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                </div>
               ))}
-              {printers.length === 0 && <p className="section-empty">Brak dodanych drukarek.</p>}
-            </ul>
+            </div>
+            
+            {printers.length === 0 && <p className="section-empty">Brak dodanych drukarek.</p>}
           </section>
         </div>
       </div>

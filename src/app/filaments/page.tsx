@@ -364,10 +364,10 @@ export default function FilamentsPage(){
                                                 </div>
                                                 <div className="status-badge" 
                                                      style={{ 
-                                                         backgroundColor: filament.weight > 100 ? 'var(--success)' : 'var(--warning)',
+                                                         backgroundColor: filament.weight > 30 ? 'var(--success)' : 'var(--warning)',
                                                          color: 'white'
                                                      }}>
-                                                    {filament.weight > 100 ? 'Dostępny' : 'Niski Stan'}
+                                                    {filament.weight > 30 ? 'Dostępny' : 'Niski Stan'}
                                                 </div>
                                             </div>
                                         </div>

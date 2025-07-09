@@ -1005,7 +1005,6 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1202,4 +1201,150 @@ body {
   .notification-message {
     font-size: 0.8rem;
   }
+}
+
+/* Printers page styles */
+.printers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.printer-card {
+  background: var(--card-background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.printer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.printer-header h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status.available {
+  background: color-mix(in srgb, var(--success) 20%, transparent);
+  color: var(--success);
+}
+
+.status.occupied {
+  background: color-mix(in srgb, var(--destructive) 20%, transparent);
+  color: var(--destructive);
+}
+
+.printer-info {
+  margin-bottom: 1rem;
+}
+
+.printer-info p {
+  margin: 0.5rem 0;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.filament-list {
+  margin-bottom: 1rem;
+}
+
+.filament-list h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.filament-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.filament-list li {
+  padding: 0.25rem 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.filament-list li:last-child {
+  border-bottom: none;
+}
+
+.no-filaments {
+  color: var(--muted-foreground);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.printer-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.diameter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.diameter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.btn-remove {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.btn-remove:hover {
+  background: color-mix(in srgb, var(--destructive) 80%, black);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted-foreground);
+}
+
+.empty-state p {
+  font-size: 1.125rem;
+  margin: 0;
 }

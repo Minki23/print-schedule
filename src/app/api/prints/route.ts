@@ -5,12 +5,14 @@ import dbConnect from '@/lib/dbConnect';
 import PrintModel from '@/models/Print';
 import '@/models/Printer';
 import '@/models/User';
+import '@/models/Filament';
 
 export async function GET(request: Request) {
   try {
     await dbConnect();
     const prints = await PrintModel.find()
       .populate('printer')
+      .populate('filament')
       .populate('scheduledBy', 'name');
     const enrichedPrints = prints.map(p => {
       let timeRemaining = null;
@@ -41,11 +43,11 @@ export async function POST(request: Request) {
     if (!session?.user || session.user.status !== 'approved') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const { name, googleDriveLink, duration, printer } = await request.json();
+    const { name, googleDriveLink, duration, printer, filament, estimatedFilamentUsage } = await request.json();
     if (!name || !googleDriveLink || typeof duration !== 'number' || !printer) {
       return NextResponse.json({ error: 'Missing required fields: name, googleDriveLink, duration, printer' }, { status: 400 });
     }
-    const newPrint = await PrintModel.create({
+    const printData: any = {
       name,
       googleDriveLink,
       duration,
@@ -53,7 +55,17 @@ export async function POST(request: Request) {
       scheduledBy: session.user.id,
       printer,
       startedAt: null,
-    });
+    };
+    
+    // Add optional filament fields if provided
+    if (filament) {
+      printData.filament = filament;
+    }
+    if (estimatedFilamentUsage !== undefined && estimatedFilamentUsage !== null) {
+      printData.estimatedFilamentUsage = estimatedFilamentUsage;
+    }
+    
+    const newPrint = await PrintModel.create(printData);
     return NextResponse.json({ print: newPrint }, { status: 201 });
   } catch (error) {
     console.error('Error creating print:', error);

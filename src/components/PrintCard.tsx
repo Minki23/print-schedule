@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import FilamentUsageModal from './FilamentUsageModal';
 
 interface Print {
   _id: string;
@@ -9,10 +10,13 @@ interface Print {
   duration: number;
   status: string;
   googleDriveLink: string;
-  printer: { _id: string; name: string; location: string; occupied: boolean };
+  printer: { _id: string; name: string; location?: string; occupied: boolean };
   timeRemaining?: number;
   startedAt?: string;
   scheduledBy: { name: string };
+  filament?: { _id: string; brand: string; color: string; material: string };
+  estimatedFilamentUsage?: number;
+  actualFilamentUsage?: number;
 }
 
 interface PrintCardProps {
@@ -32,6 +36,8 @@ export default function PrintCard({
 }: PrintCardProps) {
   const { data: session } = useSession();
   const [showMenu, setShowMenu] = useState(false);
+  const [showFilamentModal, setShowFilamentModal] = useState(false);
+  const [filamentModalType, setFilamentModalType] = useState<'stop' | 'markFailed'>('stop');
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close menu when clicking outside
@@ -85,18 +91,40 @@ export default function PrintCard({
 
   const handleStopPrint = async () => {
     if (!confirm('Czy na pewno chcesz zatrzymać ten wydruk przed czasem?')) return;
+    
+    if (print.filament) {
+      setFilamentModalType('stop');
+      setShowFilamentModal(true);
+    } else {
+      // No filament - just stop the print
+      try {
+        const res = await fetch(`/api/prints/${print._id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'stop' }),
+        });
+        if (!res.ok) throw new Error('Failed to stop print');
+        onUpdate();
+      } catch (err: any) {
+        onError(err.message || 'An error occurred');
+      }
+    }
+    setShowMenu(false);
+  };
+
+  const handleStopWithFilament = async (filamentUsage: number) => {
     try {
       const res = await fetch(`/api/prints/${print._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'stop' }),
+        body: JSON.stringify({ action: 'stop', actualFilamentUsage: filamentUsage }),
       });
       if (!res.ok) throw new Error('Failed to stop print');
       onUpdate();
+      setShowFilamentModal(false);
     } catch (err: any) {
       onError(err.message || 'An error occurred');
     }
-    setShowMenu(false);
   };
 
   const handleRestartPrint = async () => {
@@ -113,14 +141,40 @@ export default function PrintCard({
 
   const handleMarkAsFailed = async () => {
     if (!confirm('Czy oznaczyć jako nieudany?')) return;
+    
+    if (print.filament) {
+      setFilamentModalType('markFailed');
+      setShowFilamentModal(true);
+    } else {
+      // No filament - just mark as failed
+      try {
+        const res = await fetch(`/api/prints/${print._id}`, { 
+          method: 'PATCH', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'markFailed' }) 
+        });
+        if (!res.ok) throw new Error('Failed to mark as failed');
+        onUpdate();
+      } catch (err: any) {
+        onError(err.message || 'Wystąpił błąd');
+      }
+    }
+    setShowMenu(false);
+  };
+
+  const handleMarkAsFailedWithFilament = async (filamentUsage: number) => {
     try {
-       const res = await fetch(`/api/prints/${print._id}`, { method: 'PATCH', body: JSON.stringify({ action: 'markFailed' }) });
+      const res = await fetch(`/api/prints/${print._id}`, { 
+        method: 'PATCH', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markFailed', actualFilamentUsage: filamentUsage }) 
+      });
       if (!res.ok) throw new Error('Failed to mark as failed');
       onUpdate();
+      setShowFilamentModal(false);
     } catch (err: any) {
       onError(err.message || 'Wystąpił błąd');
     }
-    setShowMenu(false);
   };
 
   const handleDeletePrint = async () => {
@@ -222,10 +276,9 @@ export default function PrintCard({
         </div>
       </div>
 
-      {/* Card Content */}
       <a href={print.googleDriveLink} target="_blank" rel="noopener noreferrer" className="link">
-        <span>
-          Link do dysku
+        <span className='flex gap-1 items-center'>
+          Plik
           <svg xmlns="http://www.w3.org/2000/svg" className="link-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
           </svg>
@@ -233,6 +286,18 @@ export default function PrintCard({
       </a>
 
       <p className="card-text">Drukarka: <span className="font-medium">{print.printer.name}</span></p>
+      {print.filament && (
+        <p className="card-text">
+          Filament: <span className="font-medium">
+            {print.filament.brand} - {print.filament.color} {print.filament.material}
+          </span>
+        </p>
+      )}
+      { print.estimatedFilamentUsage != undefined && print.estimatedFilamentUsage > 0 && (
+        <p className="card-text">
+          Szacowane zużycie: <span className="font-medium">{print.estimatedFilamentUsage.toString()}g</span>
+        </p>
+      )}
       <p className="card-text">Czas trwania: {print.duration} min</p>
       
       {print.status === 'printing' && (
@@ -254,6 +319,19 @@ export default function PrintCard({
       {print.status === 'printing' && (
         <span className="status-badge status-printing">Drukowanie</span>
       )}
+
+      {/* Filament Usage Modal */}
+      <FilamentUsageModal
+        isOpen={showFilamentModal}
+        onClose={() => setShowFilamentModal(false)}
+        onConfirm={filamentModalType === 'stop' ? handleStopWithFilament : handleMarkAsFailedWithFilament}
+        title={filamentModalType === 'stop' ? 'Zatrzymaj druk' : 'Oznacz jako nieudany'}
+        message={filamentModalType === 'stop' 
+          ? 'Podaj ilość zużytego filamentu przed zatrzymaniem druku:' 
+          : 'Podaj ilość zużytego filamentu przed oznaczeniem jako nieudany:'
+        }
+        estimatedUsage={print.estimatedFilamentUsage}
+      />
     </div>
   );
 }
