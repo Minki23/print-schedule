@@ -44,7 +44,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pr
       // If actualFilamentUsage is provided, update it and consume filament
       if (actualFilamentUsage !== undefined && filament) {
         print.actualFilamentUsage = actualFilamentUsage;
-        filament.weight = Math.max(0, filament.weight - actualFilamentUsage);
+        filament.weight = Math.max(0, filament.weight - (actualFilamentUsage - print.estimatedFilamentUsage));
         await filament.save();
       }
       
@@ -65,7 +65,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pr
       const filamentToConsume = actualFilamentUsage !== undefined ? actualFilamentUsage : print.estimatedFilamentUsage;
       if (filament) {
         print.actualFilamentUsage = filamentToConsume;
-        filament.weight = Math.max(0, filament.weight - filamentToConsume);
+        filament.weight = Math.max(0, filament.weight - (filamentToConsume));
         await filament.save();
       }
       

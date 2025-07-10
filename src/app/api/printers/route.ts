@@ -43,10 +43,10 @@ export async function POST(request: Request) {
     // Ensure models are registered
     FilamentModel;
 
-    const { name, location, supportedFilamentDiameters, nozzleSize } = await request.json();
+    const { name, supportedFilamentDiameters, nozzleSize } = await request.json();
     
     // Validate required fields
-    if (!name || !location || !supportedFilamentDiameters || !nozzleSize) {
+    if (!name ||  !supportedFilamentDiameters || !nozzleSize) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
     
@@ -57,7 +57,6 @@ export async function POST(request: Request) {
 
     const newPrinter = new PrinterModel({
       name,
-      location,
       supportedFilamentDiameters,
       nozzleSize,
       possibleFilaments: compatibleFilaments.map(f => f._id)

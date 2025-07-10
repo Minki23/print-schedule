@@ -16,7 +16,6 @@ interface User {
 interface Printer {
   _id: string;
   name: string;
-  location?: string;
   occupied: boolean;
   supportedFilamentDiameters?: number[];
   nozzleSize?: number;
