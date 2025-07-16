@@ -583,14 +583,6 @@ body {
 }
 
 /* Loading and Error States */
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  color: var(--primary-foreground);
-  font-size: 1.125rem;
-}
 
 .error {
   display: flex;

@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import PrintCard from '@/components/PrintCard';
 import Navigation from '@/components/Navigation';
+import Image from 'next/image';
+import { ReactSVG } from "react-svg";
+import '@/styles/loading.css';
 
 interface Print {
   _id: string;
@@ -71,8 +74,8 @@ export default function SchedulePage() {
         setError(err.message || 'An error occurred while fetching prints.');
       }
       setIsLoading(false);
-    };
-    
+    }
+
     fetchPrints();
     
     // Set up interval to check periodically
@@ -101,7 +104,12 @@ export default function SchedulePage() {
   const filteredFailedPrints = filterPrints(allPrints.filter(p => p.status === 'failed'));
 
   if (isLoading) {
-    return <div className="loading">Ładowanie harmonogramu...</div>;
+    return (
+      <div className="loading">
+        <ReactSVG src="/logo.svg" className='loading-logo'/>
+        <div className="loading-spinner"></div>
+      </div>
+    );
   }
 
   if (error) {
