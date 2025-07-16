@@ -7,6 +7,7 @@ import Navigation from '@/components/Navigation';
 
 export default function NewPrintPage() {
   const [name, setName] = useState('');
+  const [project, setProject] = useState('');
   const [googleDriveLink, setGoogleDriveLink] = useState('');
   const [duration, setDuration] = useState('');
   const [error, setError] = useState('');
@@ -20,7 +21,7 @@ export default function NewPrintPage() {
     setError('');
     setIsSubmitting(true);
 
-    if (!name || !googleDriveLink || !duration) {
+    if (!name || !project || !googleDriveLink || !duration) {
       setError('Wszystkie pola są wymagane.');
       setIsSubmitting(false);
       return;
@@ -39,13 +40,15 @@ export default function NewPrintPage() {
       return;
     }
 
+    const title = `${project}: ${name}`;
+
     try {
       const res = await fetch('/api/prints', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, googleDriveLink, duration: durationNum, printer }),
+        body: JSON.stringify({ "name": title, googleDriveLink, duration: durationNum, printer }),
       });
 
       if (res.ok) {
@@ -86,7 +89,18 @@ export default function NewPrintPage() {
         <form onSubmit={handleSubmit} className="form-container">
           {error && <p className="form-error">{error}</p>}
           <div className="form-group">
-            <label htmlFor="name" className="form-label">
+            <label htmlFor="project" className="form-label">
+              Projekt:
+            </label>
+            <input
+              type="text"
+              id="project"
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+              className="form-input"
+              required
+            />
+            <label htmlFor="name" className="form-label mt-3">
               Nazwa pliku
             </label>
             <input
