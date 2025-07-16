@@ -4,6 +4,8 @@ import Navigation from "@/components/Navigation";
 import Notification from "@/components/Notification";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { ReactSVG } from "react-svg";
+import '@/styles/loading.css';
 
 interface Filament {
     _id: string;
@@ -164,14 +166,14 @@ export default function FilamentsPage(){
         return null;
     }
 
-    if (loading) {
-        return (
-            <div className="schedule-background">
-                <Navigation/>
-                <div className="loading">Ładowanie filamentów...</div>
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="loading">
+        <ReactSVG src="/logo.svg" className='loading-logo'/>
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
 
     return (
         <div className="schedule-background">

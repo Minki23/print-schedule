@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Navigation from '@/components/Navigation';
+import '@/styles/loading.css';
+import { ReactSVG } from 'react-svg';
 
 interface User {
   _id: string;
@@ -138,9 +140,9 @@ export default function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="schedule-background">
-        <Navigation />
-        <div className="loading">Ładowanie użytkowników i drukarek...</div>
+      <div className="loading">
+        <ReactSVG src="/logo.svg" className='loading-logo'/>
+        <div className="loading-spinner"></div>
       </div>
     );
   }
