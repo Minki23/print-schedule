@@ -383,7 +383,7 @@ body {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
-@media (min-width: 768px) {
+@media (min-width: 500px) {
   .grid-cols-2 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
