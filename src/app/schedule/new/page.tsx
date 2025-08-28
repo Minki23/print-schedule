@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import { useSession } from 'next-auth/react';
 
 export default function NewPrintPage() {
   const [name, setName] = useState('');
+  const { data: session } = useSession();
   const [project, setProject] = useState('');
   const [googleDriveLink, setGoogleDriveLink] = useState('');
   const [duration, setDuration] = useState('');
@@ -15,6 +17,12 @@ export default function NewPrintPage() {
   const [printers, setPrinters] = useState<{ _id: string; name: string }[]>([]);
   const [printer, setPrinter] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/");
+    }
+  }, [session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

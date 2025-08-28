@@ -8,6 +8,7 @@ import Navigation from '@/components/Navigation';
 import Image from 'next/image';
 import { ReactSVG } from "react-svg";
 import '@/styles/loading.css';
+import { useRouter } from 'next/navigation';
 
 interface Print {
   _id: string;
@@ -23,11 +24,21 @@ interface Print {
 
 export default function SchedulePage() {
   const { data: session } = useSession();
+  const router = useRouter();
+  
   const [prints, setPrints] = useState<Print[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [startingPrintId, setStartingPrintId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/");
+    }
+  }, [session, router]);
+
+
 
   const refreshPrints = async () => {
     try {
@@ -103,7 +114,8 @@ export default function SchedulePage() {
   const filteredCompletedPrints = filterPrints(allPrints.filter(p => p.status === 'completed'));
   const filteredFailedPrints = filterPrints(allPrints.filter(p => p.status === 'failed'));
 
-  if (isLoading) {
+  // Show loading while session is being determined or user is being redirected
+  if (!session || isLoading) {
     return (
       <div className="loading">
         <ReactSVG src="/logo.svg" className='loading-logo'/>

@@ -28,7 +28,7 @@ export default function AdminPage() {
   const [isPrinterLoading, setIsPrinterLoading] = useState(false);
 
   useEffect(() => {
-    if (session?.user.rank !== 'admin') {
+    if (!session || session?.user.rank !== 'admin') {
       router.push('/');
     }
   }, [router, session]);

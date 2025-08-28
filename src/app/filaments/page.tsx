@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { ReactSVG } from "react-svg";
 import '@/styles/loading.css';
+import { useRouter } from "next/router";
 
 interface Filament {
     _id: string;
@@ -27,6 +28,7 @@ export default function FilamentsPage(){
     const [showMenu, setShowMenu] = useState(false)
     const [loading, setLoading] = useState(false);
     const [editingFilament, setEditingFilament] = useState<Filament | null>(null);
+    const router = useRouter();
     
     const [color, setColor] = useState('');
     const [brand, setBrand] = useState('');
@@ -34,6 +36,12 @@ export default function FilamentsPage(){
     const [diameter, setDiameter] = useState('');
     const [weight, setWeight] = useState('');
 
+    useEffect(() => {
+        if (!session) {
+        router.push("/");
+        }
+    }, [session, router]);
+    
     useEffect(()=>{
         fetchFilaments();
     }, [])
