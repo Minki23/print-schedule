@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { ReactSVG } from "react-svg";
 import '@/styles/loading.css';
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface Filament {
     _id: string;
@@ -37,8 +37,8 @@ export default function FilamentsPage(){
     const [weight, setWeight] = useState('');
 
     useEffect(() => {
-        if (!session) {
-        router.push("/");
+        if (session === null) {
+            router.push("/");
         }
     }, [session, router]);
     
@@ -170,8 +170,22 @@ export default function FilamentsPage(){
         setShowMenu(false);
     };
 
-    if (!session) {
-        return null;
+    if (session === null) {
+        return (
+            <div className="loading">
+                <ReactSVG src="/logo.svg" className='loading-logo'/>
+                <div className="loading-spinner"></div>
+            </div>
+        );
+    }
+
+    if (session === undefined) {
+        return (
+            <div className="loading">
+                <ReactSVG src="/logo.svg" className='loading-logo'/>
+                <div className="loading-spinner"></div>
+            </div>
+        );
     }
 
   if (loading) {
